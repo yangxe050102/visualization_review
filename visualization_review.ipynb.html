@@ -1,0 +1,1325 @@
+<html>
+<head>
+<title>visualization_review.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #080808;}
+.s1 { color: #0033b3;}
+.s2 { color: #067d17;}
+.s3 { color: #1750eb;}
+.s4 { color: #8c8c8c; font-style: italic;}
+.ls0 { height: 1px; border-width: 0; color: #dfe1e5; background-color:#dfe1e5}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+visualization_review.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+# 数据可视化图表全维度解析 <hr class="ls0">#%% md 
+## 一、比较与排序类图表 
+1. 柱状图（Bar Chart） 
+ 
+① 基础信息 
+最经典的类别对比图表，通过柱子的长度映射数值大小，用于不同分类间的数值比较与排序，是商业分析中使用最广泛的图表之一。 
+ 
+② 构成与视觉通道 
+- 核心构成：分类轴（横轴/纵轴）、数值轴、矩形柱子、数据标签与图例 
+- 视觉通道：核心为长度（柱子高度/宽度），辅助通道为颜色（区分分组/类别）、位置（分类排序） 
+ 
+③ 适用场景 
+- 离散分类的数值大小对比、排名展示 
+- 多组分类数据的横向/纵向对比 
+- 适合类别数量适中（≤15类）的场景，如各部门业绩、各产品销量对比 
+ 
+④ 注意事项 
+- 数值轴必须从0开始，截断纵轴会严重误导数值对比 
+- 建议按数值大小排序，提升可读性；水平柱状图（条形图）更适合长类别名称 
+- 不适合展示占比、连续数据分布 
+ 
+⑤ 优缺点 
+- 优点：认知门槛极低，数值对比精度高，制作简单，大众接受度高 
+- 缺点：类别过多时会拥挤，信息密度有限，无法展示层级与占比关系 
+ 
+⑥ 常见变体 
+水平条形图、分组柱状图、堆叠柱状图、双向柱状图、百分比堆叠柱状图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">categories = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">]</span>
+<span class="s0">values = [</span><span class="s3">20</span><span class="s0">, </span><span class="s3">35</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, </span><span class="s3">25</span><span class="s0">]</span>
+
+<span class="s0">plt.bar(categories, values)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 环柱状图（Radial Bar Chart / 环形柱状图） 
+ 
+① 基础信息 
+柱状图的极坐标变体，也叫径向柱状图，将分类沿圆周分布，柱子沿径向延伸，用径向长度映射数值，兼具排序对比与视觉表现力。 
+ 
+② 构成与视觉通道 
+- 核心构成：圆周分类轴、径向数值轴、环形排布的柱子 
+- 视觉通道：核心为径向长度，辅助通道为角度（分类区分）、颜色（分组） 
+ 
+③ 适用场景 
+- 类别数量较多的排名展示，如TOP20城市销量排行 
+- 强调视觉冲击力的汇报、大屏看板 
+- 周期性分类数据（如月度、季度）的对比 
+ 
+④ 注意事项 
+- 外圈柱子视觉权重天然更高，会放大高数值的视觉感知，存在误导风险 
+- 不适合精确数值读取，仅适合相对大小对比 
+- 类别过少（≤5类）使用会浪费空间、形式大于内容 
+ 
+⑤ 优缺点 
+- 优点：节省横向空间，视觉表现力强，适合多类别排序展示 
+- 缺点：数值精度差，外圈存在视觉放大效应，解读成本高于普通柱状图 
+ 
+⑥ 常见变体 
+分组环柱状图、堆叠环柱状图、螺旋柱状图、单指标进度环 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">categories = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">, </span><span class="s2">'E'</span><span class="s0">]</span>
+<span class="s0">values = [</span><span class="s3">20</span><span class="s0">, </span><span class="s3">35</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, </span><span class="s3">25</span><span class="s0">, </span><span class="s3">40</span><span class="s0">]</span>
+<span class="s0">angles = np.linspace(</span><span class="s3">0</span><span class="s0">, </span><span class="s3">2 </span><span class="s0">* np.pi, len(categories), endpoint=</span><span class="s1">False</span><span class="s0">)</span>
+
+<span class="s0">plt.subplot(projection=</span><span class="s2">'polar'</span><span class="s0">)</span>
+<span class="s0">plt.bar(angles, values)</span>
+<span class="s0">plt.xticks(angles, categories)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 子弹图（Bullet Graph） 
+ 
+① 基础信息 
+由可视化专家Stephen Few设计，是替代仪表盘的紧凑型指标图表，可在极小空间内同时展示实际值、目标值与绩效区间，核心用于KPI对标。 
+ 
+② 构成与视觉通道 
+- 核心构成：背景绩效区间（差/良/优分段）、实际值主条、目标值参考线 
+- 视觉通道：核心为长度（实际值、区间范围），辅助通道为位置（目标线）、颜色明度（绩效等级） 
+ 
+③ 适用场景 
+- 仪表盘、看板中的多指标绩效监控 
+- 实际值与目标值的对标分析，如销售完成率、预算执行率 
+- 空间有限但需承载多维度指标信息的场景 
+ 
+④ 注意事项 
+- 绩效区间划分需符合业务逻辑，通常分为3-5段 
+- 目标线与实际值条需视觉区分明确 
+- 不适合多类别排序、占比分析 
+ 
+⑤ 优缺点 
+- 优点：信息密度极高，紧凑高效，单图承载实际值、目标值、绩效等级三重信息 
+- 缺点：认知门槛略高，不适合非专业受众，仅适合单指标对标，不支持多类别对比 
+ 
+⑥ 常见变体 
+垂直子弹图、多指标子弹图矩阵、彩色子弹图、反向子弹图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s4"># 绩效区间、实际值、目标值</span>
+<span class="s0">ranges = [</span><span class="s3">0</span><span class="s0">, </span><span class="s3">40</span><span class="s0">, </span><span class="s3">70</span><span class="s0">, </span><span class="s3">100</span><span class="s0">]</span>
+<span class="s0">actual = </span><span class="s3">65</span>
+<span class="s0">target = </span><span class="s3">75</span>
+
+<span class="s0">fig, ax = plt.subplots(figsize=(</span><span class="s3">6</span><span class="s0">, </span><span class="s3">1.5</span><span class="s0">))</span>
+<span class="s4"># 背景绩效分段</span>
+<span class="s0">ax.barh(</span><span class="s3">0</span><span class="s0">, ranges[</span><span class="s3">1</span><span class="s0">], height=</span><span class="s3">0.5</span><span class="s0">, color=</span><span class="s2">'#eee'</span><span class="s0">)</span>
+<span class="s0">ax.barh(</span><span class="s3">0</span><span class="s0">, ranges[</span><span class="s3">2</span><span class="s0">]-ranges[</span><span class="s3">1</span><span class="s0">], left=ranges[</span><span class="s3">1</span><span class="s0">], height=</span><span class="s3">0.5</span><span class="s0">, color=</span><span class="s2">'#ccc'</span><span class="s0">)</span>
+<span class="s0">ax.barh(</span><span class="s3">0</span><span class="s0">, ranges[</span><span class="s3">3</span><span class="s0">]-ranges[</span><span class="s3">2</span><span class="s0">], left=ranges[</span><span class="s3">2</span><span class="s0">], height=</span><span class="s3">0.5</span><span class="s0">, color=</span><span class="s2">'#aaa'</span><span class="s0">)</span>
+<span class="s4"># 实际值条与目标线</span>
+<span class="s0">ax.barh(</span><span class="s3">0</span><span class="s0">, actual, height=</span><span class="s3">0.2</span><span class="s0">, color=</span><span class="s2">'#333'</span><span class="s0">)</span>
+<span class="s0">ax.axvline(target, color=</span><span class="s2">'red'</span><span class="s0">, linewidth=</span><span class="s3">2</span><span class="s0">)</span>
+
+<span class="s0">ax.set_yticks([])</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+4. 哑铃图（Dumbbell Chart） 
+ 
+① 基础信息 
+也叫哑铃点图，通过线段连接同一主体的两个数据点，直观展示两点间的差值与变化方向，是替代分组柱状图的简洁对比方案。 
+ 
+② 构成与视觉通道 
+- 核心构成：数值轴、两个端点（对应两个对比维度）、连接线段 
+- 视觉通道：核心为线段长度（差值大小）、端点位置（数值），辅助通道为颜色（差值方向/分组） 
+ 
+③ 适用场景 
+- 同一主体的前后对比，如政策实施前后的指标变化 
+- 两组数据的差异对比，如不同群体的收入差距、男女各岗位人数差 
+- 排名变化、差距分析类场景 
+ 
+④ 注意事项 
+- 主体数量不宜过多（≤20个），否则线条重叠混乱 
+- 建议按差值大小排序，提升可读性 
+- 仅支持两个对比维度，无法承载多时间点数据 
+ 
+⑤ 优缺点 
+- 优点：差值感知直观，比分组柱状图更简洁，能清晰展示变化方向 
+- 缺点：仅支持双点对比，主体数量受限，信息维度有限 
+ 
+⑥ 常见变体 
+水平哑铃图、垂直哑铃图、分组着色哑铃图、棒棒糖图（单端点变体） <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">plt.rcParams[</span><span class="s2">'font.sans-serif'</span><span class="s0">] = [</span><span class="s2">'SimHei'</span><span class="s0">]</span>
+<span class="s0">plt.rcParams[</span><span class="s2">'axes.unicode_minus'</span><span class="s0">] = </span><span class="s1">False</span>
+
+<span class="s0">categories = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">]</span>
+<span class="s0">val_before = [</span><span class="s3">10</span><span class="s0">, </span><span class="s3">20</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">25</span><span class="s0">]</span>
+<span class="s0">val_after = [</span><span class="s3">20</span><span class="s0">, </span><span class="s3">25</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, </span><span class="s3">35</span><span class="s0">]</span>
+<span class="s0">y_pos = np.arange(len(categories))</span>
+
+<span class="s0">plt.hlines(y_pos, val_before, val_after, color=</span><span class="s2">'gray'</span><span class="s0">)</span>
+<span class="s0">plt.scatter(val_before, y_pos, color=</span><span class="s2">'blue'</span><span class="s0">, s=</span><span class="s3">60</span><span class="s0">, label=</span><span class="s2">'前期'</span><span class="s0">)</span>
+<span class="s0">plt.scatter(val_after, y_pos, color=</span><span class="s2">'red'</span><span class="s0">, s=</span><span class="s3">60</span><span class="s0">, label=</span><span class="s2">'后期'</span><span class="s0">)</span>
+
+<span class="s0">plt.yticks(y_pos, categories)</span>
+<span class="s0">plt.legend()</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+5. 雷达图（Radar Chart / 蜘蛛图） 
+ 
+① 基础信息 
+也叫蜘蛛图、星图，将多个维度映射到极坐标的放射轴上，用多边形轮廓展示多维度数据的整体形态，核心用于多维度综合对比。 
+ 
+② 构成与视觉通道 
+- 核心构成：多个等角度分布的数值轴、连接各维度的折线/多边形 
+- 视觉通道：核心为径向位置（数值大小）、多边形形状（整体轮廓），辅助通道为角度（维度区分）、颜色（不同系列） 
+ 
+③ 适用场景 
+- 多维度能力评估，如员工能力画像、产品属性评分、企业竞争力模型 
+- 多主体的综合指标对比，如不同城市的营商环境、不同方案的多维度打分 
+- 优劣势分析、综合画像类场景 
+ 
+④ 注意事项 
+- 维度数量建议5-8个，过多会导致拥挤、难以识别 
+- 维度的排列顺序会显著影响形状感知，需按逻辑排序 
+- 数值轴必须从0开始，否则会严重扭曲轮廓 
+- 不适合精确数值对比，仅适合整体形态判断 
+ 
+⑤ 优缺点 
+- 优点：能直观展示整体优劣势，多维度综合对比的表现力强 
+- 缺点：面积与形状感知误差大，维度顺序影响解读，数值精度差，维度过多可读性骤降 
+ 
+⑥ 常见变体 
+填充雷达图、多系列雷达图、极坐标面积图、玫瑰图（南丁格尔图，相关变体） <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">labels = [</span><span class="s2">'维度1'</span><span class="s0">, </span><span class="s2">'维度2'</span><span class="s0">, </span><span class="s2">'维度3'</span><span class="s0">, </span><span class="s2">'维度4'</span><span class="s0">, </span><span class="s2">'维度5'</span><span class="s0">]</span>
+<span class="s0">values = [</span><span class="s3">80</span><span class="s0">, </span><span class="s3">60</span><span class="s0">, </span><span class="s3">75</span><span class="s0">, </span><span class="s3">90</span><span class="s0">, </span><span class="s3">70</span><span class="s0">]</span>
+<span class="s0">angles = np.linspace(</span><span class="s3">0</span><span class="s0">, </span><span class="s3">2 </span><span class="s0">* np.pi, len(labels), endpoint=</span><span class="s1">False</span><span class="s0">)</span>
+
+<span class="s4"># 闭合多边形</span>
+<span class="s0">values += values[:</span><span class="s3">1</span><span class="s0">]</span>
+<span class="s0">angles = np.append(angles, angles[</span><span class="s3">0</span><span class="s0">])</span>
+
+<span class="s0">plt.subplot(projection=</span><span class="s2">'polar'</span><span class="s0">)</span>
+<span class="s0">plt.plot(angles, values)</span>
+<span class="s0">plt.fill(angles, values, alpha=</span><span class="s3">0.2</span><span class="s0">)</span>
+<span class="s0">plt.xticks(angles[:-</span><span class="s3">1</span><span class="s0">], labels)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+6. 平行坐标图（Parallel Coordinates Plot） 
+ 
+① 基础信息 
+高维数据探索的核心图表，将每个维度映射为一条平行的数值轴，用折线连接同一样本在各轴上的点，用于发现多维数据的模式、聚类与异常值。 
+ 
+② 构成与视觉通道 
+- 核心构成：多条平行的数值轴、连接单样本的折线 
+- 视觉通道：核心为轴上位置（数值）、折线形态（数据模式），辅助通道为颜色（样本分组） 
+ 
+③ 适用场景 
+- 高维数据的探索性分析，如用户画像聚类、产品多指标对比 
+- 异常值识别、模式发现，如不同批次产品的质量参数分布 
+- 机器学习特征分析、多维度样本分组 
+ 
+④ 注意事项 
+- 维度顺序会直接影响模式发现，需按相关性或业务逻辑排序 
+- 样本过多会出现「过绘制」，可通过透明度、采样、交互筛选解决 
+- 认知门槛高，不适合面向大众的汇报 
+ 
+⑤ 优缺点 
+- 优点：可同时展示十余个维度的数据模式，能有效发现聚类、趋势与异常值 
+- 缺点：维度过多时可读性下降，线条重叠严重，解读需要专业背景 
+ 
+⑥ 常见变体 
+聚类着色平行坐标图、交互式平行坐标图、水平平行坐标图、平行类别图（适配分类维度） <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">pandas </span><span class="s1">as </span><span class="s0">pd</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">from </span><span class="s0">pandas.plotting </span><span class="s1">import </span><span class="s0">parallel_coordinates</span>
+
+<span class="s4"># 模拟数据</span>
+<span class="s0">data = pd.DataFrame({</span>
+    <span class="s2">'分组'</span><span class="s0">: [</span><span class="s2">'组1'</span><span class="s0">, </span><span class="s2">'组2'</span><span class="s0">, </span><span class="s2">'组3'</span><span class="s0">, </span><span class="s2">'组4'</span><span class="s0">],</span>
+    <span class="s2">'指标A'</span><span class="s0">: [</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s0">, </span><span class="s3">4</span><span class="s0">],</span>
+    <span class="s2">'指标B'</span><span class="s0">: [</span><span class="s3">3</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">1</span><span class="s0">, </span><span class="s3">4</span><span class="s0">],</span>
+    <span class="s2">'指标C'</span><span class="s0">: [</span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s0">, </span><span class="s3">4</span><span class="s0">, </span><span class="s3">1</span><span class="s0">]</span>
+<span class="s0">})</span>
+
+<span class="s0">parallel_coordinates(data, </span><span class="s2">'分组'</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+7. 词云图（Word Cloud） 
+ 
+① 基础信息 
+文本数据的可视化形式，通过文字的字号、颜色映射词汇的频率/权重，用于快速展示文本中的高频核心词汇。 
+ 
+② 构成与视觉通道 
+- 核心构成：不同大小的词汇、可选的形状边界 
+- 视觉通道：核心为字号（文字面积，映射词频），辅助通道为颜色（分类、情感或视觉装饰） 
+ 
+③ 适用场景 
+- 文本关键词概览，如舆情热词、评论关键词、报告核心词 
+- 封面、大屏等强调视觉效果的场景 
+- 快速传递高频信息，不要求精确对比的场景 
+ 
+④ 注意事项 
+- 仅适合展示相对频率，无法承载精确数值对比 
+- 需提前清洗停用词、无意义词汇 
+- 词汇数量建议50-100个，过多会拥挤难读 
+- 不适合严谨的数据分析与决策场景 
+ 
+⑤ 优缺点 
+- 优点：直观生动，传播性强，快速抓住核心信息，视觉吸引力强 
+- 缺点：信息密度低，面积感知误差大，缺乏逻辑顺序，无法展示精确数值与关联 
+ 
+⑥ 常见变体 
+形状词云（图云）、词频条形词云、情感着色词云、交互式词云 <hr class="ls0">#%% 
+</span><span class="s1">from </span><span class="s0">wordcloud </span><span class="s1">import </span><span class="s0">WordCloud</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+
+<span class="s0">text = </span><span class="s2">&quot;python data visualization analysis machine-learning graph&quot;</span>
+<span class="s4"># 中文显示需指定本地字体路径，如 font_path=&quot;C:/Windows/Fonts/simhei.ttf&quot;</span>
+<span class="s0">wc = WordCloud(background_color=</span><span class="s2">'white'</span><span class="s0">, width=</span><span class="s3">400</span><span class="s0">, height=</span><span class="s3">200</span><span class="s0">, font_path=</span><span class="s1">None</span><span class="s0">)</span>
+<span class="s0">wc.generate(text)</span>
+
+<span class="s0">plt.imshow(wc)</span>
+<span class="s0">plt.axis(</span><span class="s2">'off'</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+二、局部与整体类图表 
+ 
+1. 饼图（Pie Chart） 
+ 
+① 基础信息 
+最经典的占比可视化图表，通过扇形的圆心角映射类别占比，完整圆形代表整体（100%），核心用于展示「部分占整体的比例」。 
+ 
+② 构成与视觉通道 
+- 核心构成：完整圆形、多个扇形、类别标签与百分比 
+- 视觉通道：核心为圆心角与扇形面积，辅助通道为颜色（类别区分） 
+ 
+③ 适用场景 
+- 分类数量少（≤5类）的占比分析，如市场份额、收入构成、人员结构 
+- 强调「部分与整体」关系的场景，适合大众受众 
+- 单组数据的构成展示 
+ 
+④ 注意事项 
+- 分类数量不建议超过5-7类，过多会导致扇形过小难以区分 
+- 所有类别总和必须为100%，必须标注百分比 
+- 不适合多组数据对比，不适合精确数值排序 
+- 禁止使用3D效果，会严重扭曲面积感知 
+ 
+⑤ 优缺点 
+- 优点：大众认知度极高，「占比」的语义直观，形式简单易懂 
+- 缺点：角度与面积感知精度差，不适合精确对比，分类过多失效，多组对比困难 
+ 
+⑥ 常见变体 
+环形图、爆炸饼图、3D饼图、多饼图阵列 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">labels = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">]</span>
+<span class="s0">sizes = [</span><span class="s3">15</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, </span><span class="s3">45</span><span class="s0">, </span><span class="s3">10</span><span class="s0">]</span>
+
+<span class="s0">plt.pie(sizes, labels=labels, autopct=</span><span class="s2">'%1.1f%%'</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 环形图（Donut Chart） 
+ 
+① 基础信息 
+饼图的核心变体，将圆形中心挖空，通过环形的弧长映射占比，弱化面积感知、强化弧长感知，同时中心可承载额外信息。 
+ 
+② 构成与视觉通道 
+- 核心构成：环形带、扇形分段、中心信息区 
+- 视觉通道：核心为弧长/角度，辅助通道为颜色、中心文本 
+ 
+③ 适用场景 
+- 同饼图的所有占比场景，更适配现代风格的看板、仪表盘 
+- 中心需展示总数、核心指标的场景，如总销售额+各渠道占比 
+- 多组小尺寸占比的并列展示 
+ 
+④ 注意事项 
+- 与饼图一致，分类不宜过多，禁止3D效果 
+- 弧长感知精度仍弱于长度，不适合精确对比 
+- 中心信息不宜过多，避免拥挤 
+ 
+⑤ 优缺点 
+- 优点：比饼图更节省空间，中心可承载核心指标，视觉更现代简洁 
+- 缺点：本质与饼图一致，占比感知精度有限，不适合精确对比 
+ 
+⑥ 常见变体 
+多层环形图、单指标进度环、分组环形图、半环形图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">labels = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">]</span>
+<span class="s0">sizes = [</span><span class="s3">15</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, </span><span class="s3">45</span><span class="s0">, </span><span class="s3">10</span><span class="s0">]</span>
+
+<span class="s4"># wedgeprops 设置环形宽度</span>
+<span class="s0">plt.pie(sizes, labels=labels, autopct=</span><span class="s2">'%1.1f%%'</span><span class="s0">, wedgeprops={</span><span class="s2">'width'</span><span class="s0">: </span><span class="s3">0.4</span><span class="s0">})</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 旭日图（Sunburst Chart） 
+ 
+① 基础信息 
+也叫多层环形图、太阳图，是饼图的层级扩展，通过多层同心环展示层级数据的占比关系，从内到外对应层级的逐步细化。 
+ 
+② 构成与视觉通道 
+- 核心构成：内层父类别环、外层子类别环、层级嵌套结构 
+- 视觉通道：核心为角度/弧长（占比），辅助通道为径向层级（结构深度）、颜色（父类区分） 
+ 
+③ 适用场景 
+- 具有层级结构的占比分析，如「大区-省份-城市」的销售占比 
+- 产品分类、组织架构、渠道层级的构成拆解 
+- 同时展示整体占比与细分构成的场景 
+ 
+④ 注意事项 
+- 层级不宜过深（建议≤3层），否则外圈类别过小难以阅读 
+- 子类别数值总和必须等于对应父类别 
+- 不适合精确数值对比，仅适合层级占比概览 
+ 
+⑤ 优缺点 
+- 优点：可同时展示层级结构与各层级占比，信息密度高于饼图 
+- 缺点：层级越深解读成本越高，外圈面积感知误差大，分类过多可读性差 
+ 
+⑥ 常见变体 
+冰柱图（垂直矩形版旭日图）、交互式旭日图、径向树图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.express </span><span class="s1">as </span><span class="s0">px</span>
+
+<span class="s0">data = dict(</span>
+    <span class="s0">父级=[</span><span class="s2">&quot;总&quot;</span><span class="s0">, </span><span class="s2">&quot;总&quot;</span><span class="s0">, </span><span class="s2">&quot;A&quot;</span><span class="s0">, </span><span class="s2">&quot;A&quot;</span><span class="s0">, </span><span class="s2">&quot;B&quot;</span><span class="s0">, </span><span class="s2">&quot;B&quot;</span><span class="s0">],</span>
+    <span class="s0">子项=[</span><span class="s2">&quot;A&quot;</span><span class="s0">, </span><span class="s2">&quot;B&quot;</span><span class="s0">, </span><span class="s2">&quot;A1&quot;</span><span class="s0">, </span><span class="s2">&quot;A2&quot;</span><span class="s0">, </span><span class="s2">&quot;B1&quot;</span><span class="s0">, </span><span class="s2">&quot;B2&quot;</span><span class="s0">],</span>
+    <span class="s0">数值=[</span><span class="s3">0</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s3">20</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">25</span><span class="s0">]</span>
+<span class="s0">)</span>
+
+<span class="s0">fig = px.sunburst(data, names=</span><span class="s2">'子项'</span><span class="s0">, parents=</span><span class="s2">'父级'</span><span class="s0">, values=</span><span class="s2">'数值'</span><span class="s0">)</span>
+<span class="s0">fig.show()</span><hr class="ls0"><span class="s0">#%% md 
+4. 圆堆积图（Circle Packing Chart） 
+ 
+① 基础信息 
+也叫圆形包装图、气泡树图，通过圆形的嵌套与面积映射层级数据的数值大小，大圆包含小圆，直观展示层级包含关系与规模差异。 
+ 
+② 构成与视觉通道 
+- 核心构成：父级大圆、子级小圆、嵌套布局 
+- 视觉通道：核心为圆形面积（数值大小），辅助通道为嵌套关系（层级）、颜色（分类） 
+ 
+③ 适用场景 
+- 层级数据的规模对比，如企业「部门-小组」的人员规模、「品类-单品」的销量 
+- 生态系统、组织架构等强调包含关系的层级数据 
+- 视觉导向的层级数据展示 
+ 
+④ 注意事项 
+- 圆形面积感知存在天然误差，不适合精确数值对比 
+- 层级不宜过深，空间利用率较低，空白区域多 
+- 小圆难以标注标签，仅适合展示规模差异 
+ 
+⑤ 优缺点 
+- 优点：层级包含关系直观，视觉美观，规模差异的感知强 
+- 缺点：空间利用率低，数值精度差，无法展示精确占比，信息密度有限 
+ 
+⑥ 常见变体 
+单层气泡图（无层级）、交互式圆堆积图、分组着色圆堆积图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">circlify</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">data = [</span>
+    <span class="s0">{</span><span class="s2">&quot;id&quot;</span><span class="s0">: </span><span class="s2">&quot;A&quot;</span><span class="s0">, </span><span class="s2">&quot;datum&quot;</span><span class="s0">: </span><span class="s3">50</span><span class="s0">, </span><span class="s2">&quot;children&quot;</span><span class="s0">: [</span>
+        <span class="s0">{</span><span class="s2">&quot;id&quot;</span><span class="s0">: </span><span class="s2">&quot;A1&quot;</span><span class="s0">, </span><span class="s2">&quot;datum&quot;</span><span class="s0">: </span><span class="s3">20</span><span class="s0">},</span>
+        <span class="s0">{</span><span class="s2">&quot;id&quot;</span><span class="s0">: </span><span class="s2">&quot;A2&quot;</span><span class="s0">, </span><span class="s2">&quot;datum&quot;</span><span class="s0">: </span><span class="s3">30</span><span class="s0">}</span>
+    <span class="s0">]},</span>
+    <span class="s0">{</span><span class="s2">&quot;id&quot;</span><span class="s0">: </span><span class="s2">&quot;B&quot;</span><span class="s0">, </span><span class="s2">&quot;datum&quot;</span><span class="s0">: </span><span class="s3">30</span><span class="s0">},</span>
+    <span class="s0">{</span><span class="s2">&quot;id&quot;</span><span class="s0">: </span><span class="s2">&quot;C&quot;</span><span class="s0">, </span><span class="s2">&quot;datum&quot;</span><span class="s0">: </span><span class="s3">20</span><span class="s0">}</span>
+<span class="s0">]</span>
+
+<span class="s0">circles = circlify.circlify(data, show_enclosure=</span><span class="s1">True</span><span class="s0">)</span>
+
+<span class="s0">fig, ax = plt.subplots(figsize=(</span><span class="s3">6</span><span class="s0">, </span><span class="s3">6</span><span class="s0">))</span>
+
+<span class="s1">for </span><span class="s0">c </span><span class="s1">in </span><span class="s0">circles:</span>
+    <span class="s4"># 画圆</span>
+    <span class="s0">circle = plt.Circle(</span>
+        <span class="s0">(c.x, c.y),</span>
+        <span class="s0">c.r,</span>
+        <span class="s0">fill=</span><span class="s1">False</span><span class="s0">,</span>
+        <span class="s0">edgecolor=</span><span class="s2">'black'</span>
+    <span class="s0">)</span>
+    <span class="s0">ax.add_patch(circle)</span>
+
+    <span class="s4"># 添加标签</span>
+    <span class="s1">if </span><span class="s0">c.ex:  </span><span class="s4"># ex中保存原始数据</span>
+        <span class="s0">label = c.ex.get(</span><span class="s2">&quot;id&quot;</span><span class="s0">, </span><span class="s2">&quot;&quot;</span><span class="s0">)</span>
+        <span class="s0">ax.text(</span>
+            <span class="s0">c.x,</span>
+            <span class="s0">c.y,</span>
+            <span class="s0">label,</span>
+            <span class="s0">ha=</span><span class="s2">'center'</span><span class="s0">,</span>
+            <span class="s0">va=</span><span class="s2">'center'</span><span class="s0">,</span>
+            <span class="s0">fontsize=</span><span class="s3">10</span>
+        <span class="s0">)</span>
+
+<span class="s0">ax.axis(</span><span class="s2">'equal'</span><span class="s0">)</span>
+<span class="s0">ax.axis(</span><span class="s2">'off'</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+5. 矩形树图（Treemap / 树图） 
+ 
+① 基础信息 
+也叫Treemap、树状图，通过矩形的嵌套与面积映射层级数据，大矩形包含小矩形，空间利用率极高，是大数据量层级数据的首选方案。 
+ 
+② 构成与视觉通道 
+- 核心构成：父级大矩形、子级小矩形、平铺嵌套布局 
+- 视觉通道：核心为矩形面积（数值大小），辅助通道为颜色（分类/数值）、嵌套结构（层级） 
+ 
+③ 适用场景 
+- 大量类别的层级占比/大小对比，如股票市值分布、电商类目销量、文件大小分布 
+- 空间有限但需展示大量分类的场景 
+- 同时展示层级结构与数值规模的分析场景 
+ 
+④ 注意事项 
+- 小面积类别难以标注标签，适合交互式场景 
+- 矩形长宽比会影响面积感知，正方形精度最高 
+- 不适合精确数值对比，仅适合相对大小与层级概览 
+ 
+⑤ 优缺点 
+- 优点：空间利用率极高，可承载大量类别，同时展示层级与数值，信息密度远高于圆堆积图 
+- 缺点：面积感知有误差，小类别可读性差，层级关系不如圆堆积直观 
+ 
+⑥ 常见变体 
+热力树图（颜色映射数值）、平方树图、Voronoi树图、交互式矩形树图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.express </span><span class="s1">as </span><span class="s0">px</span>
+
+<span class="s0">data = dict(</span>
+    <span class="s0">类别=[</span><span class="s2">&quot;A&quot;</span><span class="s0">, </span><span class="s2">&quot;B&quot;</span><span class="s0">, </span><span class="s2">&quot;C&quot;</span><span class="s0">, </span><span class="s2">&quot;D&quot;</span><span class="s0">],</span>
+    <span class="s0">数值=[</span><span class="s3">20</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, </span><span class="s3">25</span><span class="s0">, </span><span class="s3">25</span><span class="s0">]</span>
+<span class="s0">)</span>
+
+<span class="s0">fig = px.treemap(data, names=</span><span class="s2">'类别'</span><span class="s0">, parents=[</span><span class="s1">None</span><span class="s0">]*</span><span class="s3">4</span><span class="s0">, values=</span><span class="s2">'数值'</span><span class="s0">)</span>
+<span class="s0">fig.show()</span><hr class="ls0"><span class="s0">#%% md 
+6. 漏斗图（Funnel Chart） 
+ 
+① 基础信息 
+通过宽度收窄的梯形展示线性流程各环节的数量变化，直观呈现从起点到终点的转化效率，是业务流程分析的核心图表。 
+ 
+② 构成与视觉通道 
+- 核心构成：多个顺序排列的梯形环节、转化路径 
+- 视觉通道：核心为梯形宽度/面积（环节数量），辅助通道为垂直位置（流程顺序）、颜色（环节类型） 
+ 
+③ 适用场景 
+- 线性转化流程分析，如销售漏斗（线索-商机-成交）、用户路径（访问-注册-付费） 
+- 招聘、审批等具有先后顺序的流程转化分析 
+- 各环节流失率、转化率评估 
+ 
+④ 注意事项 
+- 环节必须具有严格的先后顺序与包含关系，总和逻辑自洽 
+- 环节数量建议3-7个，过多会导致过窄难以标注 
+- 必须标注各环节数值与转化率 
+ 
+⑤ 优缺点 
+- 优点：流程转化语义直观，业务含义清晰，大众易理解 
+- 缺点：仅适合单一线性流程，无法展示分支、回流与循环，不适合非顺序数据 
+ 
+⑥ 常见变体 
+对称漏斗图、对比漏斗图、金字塔图（反向漏斗）、漏斗桑基图（带分支） <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.express </span><span class="s1">as </span><span class="s0">px</span>
+
+<span class="s0">data = dict(</span>
+    <span class="s0">环节=[</span><span class="s2">'访问'</span><span class="s0">, </span><span class="s2">'注册'</span><span class="s0">, </span><span class="s2">'加购'</span><span class="s0">, </span><span class="s2">'付款'</span><span class="s0">],</span>
+    <span class="s0">人数=[</span><span class="s3">1000</span><span class="s0">, </span><span class="s3">500</span><span class="s0">, </span><span class="s3">200</span><span class="s0">, </span><span class="s3">100</span><span class="s0">]</span>
+<span class="s0">)</span>
+
+<span class="s0">fig = px.funnel(data, x=</span><span class="s2">'人数'</span><span class="s0">, y=</span><span class="s2">'环节'</span><span class="s0">)</span>
+<span class="s0">fig.show()</span><hr class="ls0"><span class="s0">#%% md 
+三、分布类图表 
+ 
+1. 直方图（Histogram） 
+ 
+① 基础信息 
+连续型数据分布分析的基础图表，将数值值域划分为连续区间（分箱），用柱子高度表示每个区间的样本频数，展示数据的分布形态。 
+ 
+② 构成与视觉通道 
+- 核心构成：连续数值横轴（分箱区间）、频数纵轴、紧密相连的柱子 
+- 视觉通道：核心为柱子高度（频数），横轴位置对应数值区间，整体形态反映分布特征 
+ 
+③ 适用场景 
+- 连续数据的分布形态分析，判断正态、偏态、双峰、均匀等分布类型 
+- 集中趋势、离散程度分析，如年龄分布、收入分布、产品尺寸公差 
+- 单组/少量分组的频数分布展示 
+ 
+④ 注意事项 
+- 分箱数量与宽度会严重影响分布形态，需选择合理的分箱规则 
+- 柱子之间无间隔，体现数据的连续性；分类数据不可用直方图 
+- 不适合多组数据对比（易拥挤重叠） 
+ 
+⑤ 优缺点 
+- 优点：直观展示数据分布形态、集中与离散趋势，认知门槛较低 
+- 缺点：分箱选择具有主观性，多组对比效果差，无法精确展示分位数 
+ 
+⑥ 常见变体 
+频率直方图、累积直方图、分组直方图、双向直方图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">data = np.random.randn(</span><span class="s3">1000</span><span class="s0">)  </span><span class="s4"># 正态分布随机数据</span>
+
+<span class="s0">plt.hist(data, bins=</span><span class="s3">20</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 核密度图（Density Plot） 
+ 
+① 基础信息 
+直方图的平滑升级版本，通过核密度估计（KDE）生成连续的密度曲线，展示连续数据的概率密度分布，更适合多组对比。 
+ 
+② 构成与视觉通道 
+- 核心构成：连续数值横轴、概率密度纵轴、平滑密度曲线 
+- 视觉通道：核心为曲线高度与形态（密度分布），线下面积对应概率 
+ 
+③ 适用场景 
+- 多组数据的分布形态对比，如不同群体的收入分布、不同实验组的指标分布 
+- 展示数据的峰度、偏态、集中趋势，避免分箱的主观干扰 
+- 平滑的分布概览展示 
+ 
+④ 注意事项 
+- 带宽（bandwidth）决定平滑程度，过小易过拟合，过大掩盖分布特征 
+- 纵轴是概率密度，而非具体频数，易被误读 
+- 不适合精确数值读取，仅看分布形态 
+ 
+⑤ 优缺点 
+- 优点：比直方图更平滑，无分箱主观性，非常适合多组分布叠加对比 
+- 缺点：纵轴含义不易理解，认知门槛略高，无法展示精确频数 
+ 
+⑥ 常见变体 
+填充密度图、多系列密度图、对数密度图、条件密度图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">data = np.random.randn(</span><span class="s3">1000</span><span class="s0">)</span>
+
+<span class="s0">sns.kdeplot(data, fill=</span><span class="s1">True</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 箱线图（Box Plot / 箱形图） 
+ 
+① 基础信息 
+由统计学家John Tukey提出，通过「最小值、Q1、中位数、Q3、最大值」五数概括展示数据分布，核心用于多组分布对比与异常值识别。 
+ 
+② 构成与视觉通道 
+- 核心构成：箱体（Q1-Q3四分位距）、中位数线、须线、异常值点 
+- 视觉通道：核心为位置（分位数）、长度（离散程度），异常值点单独标记 
+ 
+③ 适用场景 
+- 多组数据的分布、离散程度对比，如不同班级成绩、不同地区收入 
+- 异常值识别、数据质量校验 
+- 空间有限的多组分布对比，是统计分析的标准工具 
+ 
+④ 注意事项 
+- 异常值默认按「1.5倍四分位距」判定，需明确统计规则 
+- 适合对比，单组数据的信息密度低于直方图 
+- 无法展示分布的细节形态（如双峰、偏态细节） 
+ 
+⑤ 优缺点 
+- 优点：信息凝练，占用空间极小，多组对比效率极高，能清晰识别异常值 
+- 缺点：无法展示分布细节形态，认知门槛高于直方图，非专业受众理解成本高 
+ 
+⑥ 常见变体 
+水平箱线图、带缺口箱线图、分组箱线图、分位数箱线图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">group1 = np.random.randn(</span><span class="s3">100</span><span class="s0">)</span>
+<span class="s0">group2 = np.random.randn(</span><span class="s3">100</span><span class="s0">) + </span><span class="s3">1</span>
+
+<span class="s0">plt.boxplot([group1, group2], labels=[</span><span class="s2">'组1'</span><span class="s0">, </span><span class="s2">'组2'</span><span class="s0">])</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+4. 小提琴图（Violin Plot） 
+ 
+① 基础信息 
+箱线图与密度图的结合体，外形类似小提琴，横向宽度对应数据密度，内部通常嵌入箱线图，同时展示分布细节与统计分位数。 
+ 
+② 构成与视觉通道 
+- 核心构成：密度轮廓、内部箱线图、数值轴 
+- 视觉通道：核心为宽度（数据密度）、内部位置（分位数） 
+ 
+③ 适用场景 
+- 同时需要展示分布形态与分位数的多组对比 
+- 数据存在双峰、偏态等复杂分布，箱线图无法充分展示的场景 
+- 科研分析、数据探索类场景 
+ 
+④ 注意事项 
+- 宽度是密度而非数量，易被误读为数值大小 
+- 适合多组对比，单组使用意义不大 
+- 认知门槛较高，不适合大众汇报 
+ 
+⑤ 优缺点 
+- 优点：同时保留密度图的分布细节与箱线图的统计信息，信息密度高于两者 
+- 缺点：认知门槛高，面积/宽度感知有误差，占用空间大于箱线图 
+ 
+⑥ 常见变体 
+水平小提琴图、带散点小提琴图、分组小提琴图、半小提琴图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">data = [np.random.randn(</span><span class="s3">100</span><span class="s0">), np.random.randn(</span><span class="s3">100</span><span class="s0">)+</span><span class="s3">1</span><span class="s0">]</span>
+
+<span class="s0">sns.violinplot(data=data)</span>
+<span class="s0">plt.xticks([</span><span class="s3">0</span><span class="s0">, </span><span class="s3">1</span><span class="s0">], [</span><span class="s2">'组1'</span><span class="s0">, </span><span class="s2">'组2'</span><span class="s0">])</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+5. 脊线图（Ridgeline Plot / Joy Plot） 
+ 
+① 基础信息 
+也叫山脊图、喜悦图，将多个密度图沿垂直方向错开并部分重叠，形成类似山脊的视觉效果，用于多组分布的纵向对比。 
+ 
+② 构成与视觉通道 
+- 核心构成：多行密度曲线、垂直错开的布局、部分重叠的填充 
+- 视觉通道：核心为曲线形态（分布特征）、垂直位置（分组），辅助通道为颜色 
+ 
+③ 适用场景 
+- 大量分组的分布形态对比，如不同年份的年龄分布、不同地区的收入分布 
+- 展示分布随时间/分类的演变趋势 
+- 强调视觉效果的分布对比场景 
+ 
+④ 注意事项 
+- 重叠程度需适中，过多会遮挡关键分布特征 
+- 行的排序会影响解读，需按逻辑顺序排列 
+- 无统一纵轴刻度，仅适合形态对比，不适合精确数值对比 
+ 
+⑤ 优缺点 
+- 优点：视觉效果突出，多组分布对比节省空间，分布演变的表现力强 
+- 缺点：数值精度差，重叠可能遮挡信息，不适合严谨的定量分析 
+ 
+⑥ 常见变体 
+填充脊线图、交互式脊线图、时间序列脊线图、镜像脊线图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">pandas </span><span class="s1">as </span><span class="s0">pd</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s4"># 模拟数据</span>
+<span class="s0">df = pd.DataFrame({</span>
+    <span class="s2">'分组'</span><span class="s0">: np.repeat([</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">], </span><span class="s3">100</span><span class="s0">),</span>
+    <span class="s2">'数值'</span><span class="s0">: np.concatenate([</span>
+        <span class="s0">np.random.randn(</span><span class="s3">100</span><span class="s0">),</span>
+        <span class="s0">np.random.randn(</span><span class="s3">100</span><span class="s0">)+</span><span class="s3">1</span><span class="s0">,</span>
+        <span class="s0">np.random.randn(</span><span class="s3">100</span><span class="s0">)+</span><span class="s3">2</span>
+    <span class="s0">])</span>
+<span class="s0">})</span>
+
+<span class="s0">sns.FacetGrid(df, row=</span><span class="s2">'分组'</span><span class="s0">, height=</span><span class="s3">1</span><span class="s0">, aspect=</span><span class="s3">5</span><span class="s0">).map(sns.kdeplot, </span><span class="s2">'数值'</span><span class="s0">, fill=</span><span class="s1">True</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+四、时间趋势类图表 
+ 
+1. 折线图（Line Chart） 
+ 
+① 基础信息 
+时间序列分析的核心图表，通过线段连接连续数据点，展示数据随时间/有序维度的变化趋势，是商业分析中使用率最高的图表之一。 
+ 
+② 构成与视觉通道 
+- 核心构成：时间横轴、数值纵轴、数据点与连接折线 
+- 视觉通道：核心为位置变化（趋势）、斜率（变化率），辅助通道为颜色（多系列区分） 
+ 
+③ 适用场景 
+- 时间序列的趋势、波动、变化率分析 
+- 多组数据的趋势对比，如多产品销量走势、多地区收入变化 
+- 连续有序维度（时间、等级、温度等）的数值变化展示 
+ 
+④ 注意事项 
+- 横轴必须是有序维度，不可用于无序分类 
+- 数据点过多可适当采样，避免折线过于密集 
+- 纵轴建议从0开始，截断需明确标注，避免误导变化幅度 
+ 
+⑤ 优缺点 
+- 优点：趋势与变化率感知直观，大众认知度极高，适合多系列对比 
+- 缺点：不适合展示占比、构成，分类过多易杂乱 
+ 
+⑥ 常见变体 
+多系列折线图、阶梯折线图、双轴折线图、对数折线图、滚动平均折线图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">x = [</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s0">, </span><span class="s3">4</span><span class="s0">, </span><span class="s3">5</span><span class="s0">]</span>
+<span class="s0">y = [</span><span class="s3">10</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">13</span><span class="s0">, </span><span class="s3">18</span><span class="s0">, </span><span class="s3">20</span><span class="s0">]</span>
+
+<span class="s0">plt.plot(x, y)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 面积图（Area Chart） 
+ 
+① 基础信息 
+折线图的变体，在折线与横轴之间填充颜色，通过面积强化数值的体量感，同时保留趋势信息，更强调总量的变化。 
+ 
+② 构成与视觉通道 
+- 核心构成：时间横轴、数值纵轴、折线与下方填充区域 
+- 视觉通道：核心为面积（体量感）、折线趋势 
+ 
+③ 适用场景 
+- 展示总量随时间的变化，强调数值的体量与规模 
+- 单系列的趋势+体量展示，如总销售额、总用户量走势 
+- 堆叠面积图适合展示总量与内部构成的双重变化 
+ 
+④ 注意事项 
+- 单系列面积图适合展示总量；多系列建议使用堆叠形式 
+- 填充透明度需合理，重叠系列避免遮挡 
+- 堆叠面积图中，非底层系列无统一基线，精确对比难度大 
+ 
+⑤ 优缺点 
+- 优点：比折线图更有体量感，直观展示总量变化，视觉冲击力更强 
+- 缺点：多系列堆叠时，中间系列数值对比困难，面积感知有误差 
+ 
+⑥ 常见变体 
+堆叠面积图、百分比堆叠面积图、阶梯面积图、重叠面积图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">x = [</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s0">, </span><span class="s3">4</span><span class="s0">, </span><span class="s3">5</span><span class="s0">]</span>
+<span class="s0">y = [</span><span class="s3">10</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">13</span><span class="s0">, </span><span class="s3">18</span><span class="s0">, </span><span class="s3">20</span><span class="s0">]</span>
+
+<span class="s0">plt.fill_between(x, y, alpha=</span><span class="s3">0.5</span><span class="s0">)</span>
+<span class="s0">plt.plot(x, y)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 地平线图（Horizon Chart） 
+ 
+① 基础信息 
+紧凑型时间序列图表，将面积图的数值范围分层着色并压缩到同一高度，用颜色深浅与正负色相区分数值，可在极小空间内展示大量时间序列。 
+ 
+② 构成与视觉通道 
+- 核心构成：分层着色的面积带、压缩的高度、正负双色体系 
+- 视觉通道：核心为颜色明度（数值大小）、颜色色相（正负方向） 
+ 
+③ 适用场景 
+- 大量时间序列的趋势对比，如多只股票走势、多地区温度变化、多指标监控 
+- 大屏看板、监控面板等空间有限、需展示多系列趋势的场景 
+- 专业分析场景的异常趋势快速识别 
+ 
+④ 注意事项 
+- 必须搭配清晰的图例，说明颜色与数值的对应关系 
+- 仅适合趋势对比，无法读取精确数值 
+- 认知门槛极高，不适合非专业受众 
+ 
+⑤ 优缺点 
+- 优点：空间利用率极致，可同时展示数十条时间序列的趋势 
+- 缺点：认知门槛极高，数值精度为零，仅适合趋势概览 
+ 
+⑥ 常见变体 
+单色地平线图、双色地平线图、交互式地平线图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">x = np.arange(</span><span class="s3">100</span><span class="s0">)</span>
+<span class="s0">y = np.random.randn(</span><span class="s3">100</span><span class="s0">).cumsum()  </span><span class="s4"># 随机游走序列</span>
+
+<span class="s0">bands = </span><span class="s3">3  </span><span class="s4"># 分层数量</span>
+<span class="s0">vmin, vmax = y.min(), y.max()</span>
+<span class="s0">step = (vmax - vmin) / bands</span>
+
+<span class="s0">fig, ax = plt.subplots(figsize=(</span><span class="s3">8</span><span class="s0">, </span><span class="s3">2</span><span class="s0">))</span>
+<span class="s1">for </span><span class="s0">i </span><span class="s1">in </span><span class="s0">range(bands):</span>
+    <span class="s0">lower = vmin + i * step</span>
+    <span class="s0">mask = y &gt;= lower</span>
+    <span class="s0">ax.fill_between(x, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">1</span><span class="s0">, where=mask, alpha=</span><span class="s3">0.3 </span><span class="s0">+ i*</span><span class="s3">0.2</span><span class="s0">, color=</span><span class="s2">'blue'</span><span class="s0">)</span>
+
+<span class="s0">ax.set_yticks([])</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+4. 河流图（Streamgraph） 
+ 
+① 基础信息 
+堆叠面积图的创意变体，也叫主题河流图，将堆叠基线居中对称，形成类似河流流动的视觉效果，展示多类别随时间的流量变化。 
+ 
+② 构成与视觉通道 
+- 核心构成：居中对称的堆叠面积带、流动的轮廓 
+- 视觉通道：核心为宽度/面积（流量大小）、流动形态，辅助通道为颜色（类别区分） 
+ 
+③ 适用场景 
+- 多类别随时间的流量变化与构成展示，如音乐流派播放量、内容类型热度变化 
+- 强调视觉效果的时间序列构成分析 
+- 整体流量的波动与演变展示 
+ 
+④ 注意事项 
+- 无统一零基线，不适合精确数值对比 
+- 类别数量适中（5-10类），过多会导致颜色难以区分 
+- 适合展示趋势与构成，不适合严谨的定量分析 
+ 
+⑤ 优缺点 
+- 优点：视觉效果流畅美观，整体流动感强，构成变化的表现力突出 
+- 缺点：数值精度差，解读成本高，基线居中导致数值对比困难 
+ 
+⑥ 常见变体 
+主题河流图（ThemeRiver）、对称河流图、非对称河流图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">x = np.arange(</span><span class="s3">10</span><span class="s0">)</span>
+<span class="s0">y1 = np.random.randint(</span><span class="s3">1</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s3">10</span><span class="s0">)</span>
+<span class="s0">y2 = np.random.randint(</span><span class="s3">1</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s3">10</span><span class="s0">)</span>
+<span class="s0">y3 = np.random.randint(</span><span class="s3">1</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s3">10</span><span class="s0">)</span>
+
+<span class="s0">plt.stackplot(x, y1, y2, y3)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+5. 瀑布图（Waterfall Chart） 
+ 
+① 基础信息 
+也叫阶梯图，通过浮动的柱子展示各因素对总量的累计影响，直观呈现从初始值到终值的增减过程，是财务拆解的核心图表。 
+ 
+② 构成与视觉通道 
+- 核心构成：首尾总量柱、中间增减浮动柱、累计逻辑线 
+- 视觉通道：核心为柱子长度（增减量）、位置（累计值），辅助通道为颜色（增减方向） 
+ 
+③ 适用场景 
+- 财务拆解，如利润构成、成本变化、营收增减因素分析 
+- 总量的因素拆解，如库存变化、用户增长来源拆解 
+- 展示「总量如何一步步变化而来」的逻辑场景 
+ 
+④ 注意事项 
+- 各因素需具有可加性，总和逻辑必须自洽 
+- 必须标注每个柱子的具体数值 
+- 增减方向的颜色区分要明确（如增绿减红） 
+ 
+⑤ 优缺点 
+- 优点：拆解逻辑直观，能清晰展示各因素对总量的影响方向与大小 
+- 缺点：因素过多会拥挤，仅适合可加性数据，适用场景有限 
+ 
+⑥ 常见变体 
+水平瀑布图、堆叠瀑布图、小计瀑布图、百分比瀑布图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">categories = [</span><span class="s2">'初始'</span><span class="s0">, </span><span class="s2">'增项1'</span><span class="s0">, </span><span class="s2">'减项1'</span><span class="s0">, </span><span class="s2">'增项2'</span><span class="s0">, </span><span class="s2">'最终'</span><span class="s0">]</span>
+<span class="s0">values = [</span><span class="s3">100</span><span class="s0">, </span><span class="s3">30</span><span class="s0">, -</span><span class="s3">20</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">125</span><span class="s0">]</span>
+
+<span class="s4"># 计算每个柱子的起始高度</span>
+<span class="s0">bottom = []</span>
+<span class="s0">current = </span><span class="s3">0</span>
+<span class="s1">for </span><span class="s0">v </span><span class="s1">in </span><span class="s0">values[:-</span><span class="s3">1</span><span class="s0">]:</span>
+    <span class="s0">bottom.append(current)</span>
+    <span class="s0">current += v</span>
+<span class="s0">bottom.append(</span><span class="s3">0</span><span class="s0">)  </span><span class="s4"># 最终项从0开始</span>
+
+<span class="s0">colors = [</span><span class="s2">'gray'</span><span class="s0">] + [</span><span class="s2">'green' </span><span class="s1">if </span><span class="s0">v&gt;</span><span class="s3">0 </span><span class="s1">else </span><span class="s2">'red' </span><span class="s1">for </span><span class="s0">v </span><span class="s1">in </span><span class="s0">values[</span><span class="s3">1</span><span class="s0">:-</span><span class="s3">1</span><span class="s0">]] + [</span><span class="s2">'gray'</span><span class="s0">]</span>
+<span class="s0">plt.bar(categories, values, bottom=bottom, color=colors)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+6. 烛形图（Candlestick Chart / K线图） 
+ 
+① 基础信息 
+也叫K线图、蜡烛图，起源于日本米市，单根柱子包含开盘价、收盘价、最高价、最低价四个维度，是金融市场价格分析的标准工具。 
+ 
+② 构成与视觉通道 
+- 核心构成：实体（开盘-收盘）、上下影线（最高-最低）、涨跌颜色区分 
+- 视觉通道：核心为实体长度（涨跌幅度）、影线长度（波动范围）、颜色（涨跌方向） 
+ 
+③ 适用场景 
+- 金融市场价格分析，如股票、期货、外汇的日K/周K走势 
+- 技术分析、多空力量判断、价格波动分析 
+- 金融专业场景的周期价格展示 
+ 
+④ 注意事项 
+- 需明确时间周期（日K、小时K、分钟K等） 
+- 涨跌颜色约定需清晰（国内通常红涨绿跌，海外相反） 
+- 仅适合金融价格数据，通用场景极少使用 
+ 
+⑤ 优缺点 
+- 优点：单根柱子包含极丰富的价格信息，能反映波动、趋势与多空力量 
+- 缺点：认知门槛极高，仅适用于金融专业场景，普适性差 
+ 
+⑥ 常见变体 
+美国线（OHLC线）、实心K线、周K/月K/分钟K、均线叠加K线图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.graph_objects </span><span class="s1">as </span><span class="s0">go</span>
+<span class="s1">import </span><span class="s0">pandas </span><span class="s1">as </span><span class="s0">pd</span>
+
+<span class="s0">df = pd.DataFrame({</span>
+    <span class="s2">'日期'</span><span class="s0">: [</span><span class="s2">'2024-01-01'</span><span class="s0">,</span><span class="s2">'2024-01-02'</span><span class="s0">,</span><span class="s2">'2024-01-03'</span><span class="s0">,</span><span class="s2">'2024-01-04'</span><span class="s0">],</span>
+    <span class="s2">'开盘'</span><span class="s0">: [</span><span class="s3">100</span><span class="s0">, </span><span class="s3">102</span><span class="s0">, </span><span class="s3">105</span><span class="s0">, </span><span class="s3">103</span><span class="s0">],</span>
+    <span class="s2">'收盘'</span><span class="s0">: [</span><span class="s3">102</span><span class="s0">, </span><span class="s3">105</span><span class="s0">, </span><span class="s3">103</span><span class="s0">, </span><span class="s3">108</span><span class="s0">],</span>
+    <span class="s2">'最高'</span><span class="s0">: [</span><span class="s3">103</span><span class="s0">, </span><span class="s3">106</span><span class="s0">, </span><span class="s3">107</span><span class="s0">, </span><span class="s3">109</span><span class="s0">],</span>
+    <span class="s2">'最低'</span><span class="s0">: [</span><span class="s3">99</span><span class="s0">, </span><span class="s3">101</span><span class="s0">, </span><span class="s3">102</span><span class="s0">, </span><span class="s3">102</span><span class="s0">]</span>
+<span class="s0">})</span>
+
+<span class="s0">fig = go.Figure(data=[go.Candlestick(</span>
+    <span class="s0">x=df[</span><span class="s2">'日期'</span><span class="s0">], open=df[</span><span class="s2">'开盘'</span><span class="s0">], high=df[</span><span class="s2">'最高'</span><span class="s0">], low=df[</span><span class="s2">'最低'</span><span class="s0">], close=df[</span><span class="s2">'收盘'</span><span class="s0">]</span>
+<span class="s0">)])</span>
+<span class="s0">fig.show()</span><hr class="ls0"><span class="s0">#%% md 
+五、地理特征类图表 
+ 
+1. 分级填色地图（Choropleth Map） 
+ 
+① 基础信息 
+也叫分级地图、区域热力图，按照行政/地理区域边界，根据区域数值填充不同深浅的颜色，是最常用的地理数据可视化形式。 
+ 
+② 构成与视觉通道 
+- 核心构成：地理底图、区域边界、分级填色 
+- 视觉通道：核心为颜色（数值大小）、地理位置 
+ 
+③ 适用场景 
+- 指标的地域分布差异展示，如各省GDP、各区县人口、各国疫情数据 
+- 行政区域维度的数值对比、空间分布模式识别 
+- 面向大众的地理数据展示 
+ 
+④ 注意事项 
+- 面积大的区域视觉权重更高，容易产生「面积误导」（如地广人稀区域视觉占比大） 
+- 分级方式（等距、分位数、自然断点）会显著影响视觉效果 
+- 必须搭配色阶图例，明确数值范围 
+ 
+⑤ 优缺点 
+- 优点：地理语义直观，大众认知度高，区域分布模式清晰 
+- 缺点：受区域面积影响大，存在天然视觉偏差，不适合精确数值对比 
+ 
+⑥ 常见变体 
+连续色阶地图、分位数分级地图、双向色阶地图（正负值）、交互式分级地图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.express </span><span class="s1">as </span><span class="s0">px</span>
+
+<span class="s4"># 使用 plotly 内置的全球GDP数据</span>
+<span class="s0">df = px.data.gapminder().query(</span><span class="s2">&quot;year==2007&quot;</span><span class="s0">)</span>
+
+<span class="s0">fig = px.choropleth(df, locations=</span><span class="s2">'iso_alpha'</span><span class="s0">, color=</span><span class="s2">'gdpPercap'</span><span class="s0">, hover_name=</span><span class="s2">'country'</span><span class="s0">)</span>
+<span class="s0">fig.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 蜂窝热力图（Hexbin Map） 
+ 
+① 基础信息 
+将地理空间划分为等面积的六边形网格，用网格颜色映射该区域的数值/点密度，解决点数据的空间聚合展示问题，消除行政区域的面积偏差。 
+ 
+② 构成与视觉通道 
+- 核心构成：等面积六边形网格、地理底图、网格填色 
+- 视觉通道：核心为颜色（密度/数值）、六边形位置 
+ 
+③ 适用场景 
+- 点数据的空间密度展示，如用户地理位置分布、门店客流、事故地点分布 
+- 消除行政边界干扰的公平密度对比 
+- 精细粒度的空间分布分析 
+ 
+④ 注意事项 
+- 六边形大小会影响展示粒度，需根据数据密度合理选择 
+- 无法对应精确行政区域，不适合行政维度的对比 
+- 适合密度展示，不适合精确数值读取 
+ 
+⑤ 优缺点 
+- 优点：等面积对比更公平，消除行政区域的面积误导，适合点数据聚合 
+- 缺点：无明确行政边界，认知门槛略高于分级地图 
+ 
+⑥ 常见变体 
+蜂窝大小热力图、三维蜂窝图、交互式蜂窝地图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">x = np.random.randn(</span><span class="s3">1000</span><span class="s0">)</span>
+<span class="s0">y = x + np.random.randn(</span><span class="s3">1000</span><span class="s0">) * </span><span class="s3">0.5</span>
+
+<span class="s0">plt.hexbin(x, y, gridsize=</span><span class="s3">20</span><span class="s0">, cmap=</span><span class="s2">'YlOrRd'</span><span class="s0">)</span>
+<span class="s0">plt.colorbar()</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 变形地图（Cartogram） 
+ 
+① 基础信息 
+也叫 Cartogram、面积变形地图，按照数值大小调整地理区域的面积，用面积直接映射数值，彻底消除地理面积的视觉偏差。 
+ 
+② 构成与视觉通道 
+- 核心构成：变形的区域轮廓、保留大致地理位置、面积映射数值 
+- 视觉通道：核心为区域面积（数值大小）、大致地理位置 
+ 
+③ 适用场景 
+- 消除地理面积干扰的公平对比，如各国人口总量、各省GDP总量对比 
+- 专题地理数据展示，强调数值大小而非真实地理面积 
+- 专业地理分析、数据新闻场景 
+ 
+④ 注意事项 
+- 地理形状会扭曲，需要读者具备基础地理认知 
+- 不适合精确地理定位，仅适合宏观数值对比 
+- 解读成本高，不适合大众受众 
+ 
+⑤ 优缺点 
+- 优点：彻底解决分级地图的面积误导，数值与面积直接对应，对比更公平 
+- 缺点：地理形状失真，解读成本极高，大众识别困难 
+ 
+⑥ 常见变体 
+连续变形地图、Dorling Cartogram（圆形变形）、网格变形地图（Grid Cartogram） <hr class="ls0">#%% 
+</span><hr class="ls0"><span class="s0">#%% md 
+六、相关性类图表 
+ 
+1. 散点图（Scatter Plot） 
+ 
+① 基础信息 
+双变量相关性分析的核心图表，将两个变量分别映射到横轴与纵轴，每个点对应一组(x,y)数值，用于探索两个连续变量的相关关系。 
+ 
+② 构成与视觉通道 
+- 核心构成：X轴、Y轴、数据点 
+- 视觉通道：核心为二维位置（变量数值），辅助通道为颜色（分组）、形状（分类） 
+ 
+③ 适用场景 
+- 探索两个连续变量的相关性（正相关、负相关、无相关、非线性相关） 
+- 识别数据聚类、异常值，如身高与体重、广告投入与销量的关系 
+- 探索性数据分析、变量关系验证 
+ 
+④ 注意事项 
+- 数据点过多会出现「过绘制」，可通过透明度、分箱、采样解决 
+- 相关性不等于因果性，不可直接推导因果 
+- 不适合分类变量的相关分析 
+ 
+⑤ 优缺点 
+- 优点：直观展示双变量的关系形态、聚类与异常值，信息密度高 
+- 缺点：仅支持两个变量，点过多易重叠，无法直接给出相关系数 
+ 
+⑥ 常见变体 
+带回归线散点图、分类着色散点图、散点图矩阵、对数散点图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">x = np.random.randn(</span><span class="s3">100</span><span class="s0">)</span>
+<span class="s0">y = x + np.random.randn(</span><span class="s3">100</span><span class="s0">) * </span><span class="s3">0.5</span>
+
+<span class="s0">plt.scatter(x, y)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 气泡图（Bubble Chart） 
+ 
+① 基础信息 
+散点图的扩展，在X、Y双变量基础上，用气泡面积映射第三个数值变量，同时可用颜色映射第四个分类变量，实现三维数值的可视化。 
+ 
+② 构成与视觉通道 
+- 核心构成：X轴、Y轴、不同大小的气泡 
+- 视觉通道：核心为位置（X/Y变量）、面积（第三变量），辅助通道为颜色（分类） 
+ 
+③ 适用场景 
+- 三个连续变量的关系展示，经典案例如「人均GDP-预期寿命-人口总量」的国家对比 
+- 多维度数据的概览对比，如产品的「销量-利润-市场规模」分析 
+ 
+④ 注意事项 
+- 气泡大小必须映射面积而非半径，否则会严重放大数值差异 
+- 气泡数量不宜过多（≤30个），避免重叠遮挡 
+- 面积感知误差大，不适合精确对比第三变量 
+ 
+⑤ 优缺点 
+- 优点：可同时展示三个变量的关系，信息密度高于散点图 
+- 缺点：面积感知精度差，气泡过多可读性差，无法承载大量数据 
+ 
+⑥ 常见变体 
+彩色气泡图、动画气泡图（加入时间维度）、气泡图矩阵 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">x = np.random.randn(</span><span class="s3">20</span><span class="s0">)</span>
+<span class="s0">y = x + np.random.randn(</span><span class="s3">20</span><span class="s0">) * </span><span class="s3">0.5</span>
+<span class="s0">size = np.random.randint(</span><span class="s3">50</span><span class="s0">, </span><span class="s3">500</span><span class="s0">, </span><span class="s3">20</span><span class="s0">)  </span><span class="s4"># 第三维度映射为气泡面积</span>
+
+<span class="s0">plt.scatter(x, y, s=size, alpha=</span><span class="s3">0.6</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 相关图（Correlogram） 
+ 
+① 基础信息 
+专门展示多变量间相关系数矩阵的可视化，通常以热力图形式呈现，用颜色表示相关系数的大小与正负，是特征分析的核心工具。 
+ 
+② 构成与视觉通道 
+- 核心构成：变量行列矩阵、单元格填色、相关系数数值标注 
+- 视觉通道：核心为颜色（相关系数大小与正负）、位置（变量对） 
+ 
+③ 适用场景 
+- 多变量的相关性探索，如数据集各特征的相关系数展示 
+- 特征工程、多重共线性识别 
+- 科研分析、数据建模前置分析 
+ 
+④ 注意事项 
+- 仅展示线性相关系数，无法识别非线性关系 
+- 变量可通过聚类排序，方便发现相关模式 
+- 建议标注具体相关系数数值，提升精度 
+ 
+⑤ 优缺点 
+- 优点：信息密度高，快速展示多变量间的相关强弱与方向 
+- 缺点：仅反映线性相关，无法展示分布与非线性关系 
+ 
+⑥ 常见变体 
+热力图式相关图、椭圆相关图、散点矩阵相关图（pairs图） <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">pandas </span><span class="s1">as </span><span class="s0">pd</span>
+
+<span class="s0">df = pd.DataFrame(np.random.randn(</span><span class="s3">100</span><span class="s0">, </span><span class="s3">4</span><span class="s0">), columns=[</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">])</span>
+<span class="s0">corr_matrix = df.corr()</span>
+
+<span class="s0">sns.heatmap(corr_matrix, annot=</span><span class="s1">True</span><span class="s0">, cmap=</span><span class="s2">'coolwarm'</span><span class="s0">, vmin=-</span><span class="s3">1</span><span class="s0">, vmax=</span><span class="s3">1</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+4. 热力图（Heatmap） 
+ 
+① 基础信息 
+通用的矩阵数据可视化形式，通过颜色的深浅/色相映射矩阵单元格的数值大小，不限于相关性，可适配任意二维矩阵数据。 
+ 
+② 构成与视觉通道 
+- 核心构成：二维矩阵行列、单元格填色、图例 
+- 视觉通道：核心为颜色（数值大小） 
+ 
+③ 适用场景 
+- 任意矩阵数据的大小对比，如用户行为热力、时间-地区数值矩阵、基因表达数据 
+- 相关系数矩阵、混淆矩阵、交叉表可视化 
+- 整体模式识别，寻找高值/低值区域 
+ 
+④ 注意事项 
+- 色阶选择需符合数据类型（连续值用渐变色，正负值用双色阶） 
+- 建议搭配数值标注，提升读取精度 
+- 颜色感知精度低，不适合精确数值对比 
+ 
+⑤ 优缺点 
+- 优点：信息密度极高，适合展示大量数据的整体模式，适用场景广泛 
+- 缺点：颜色感知精度差，不适合精确数值对比，色阶选择不当易误导 
+ 
+⑥ 常见变体 
+聚类热力图、日历热力图、地理热力图、交互式热力图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">data = np.random.rand(</span><span class="s3">5</span><span class="s0">, </span><span class="s3">5</span><span class="s0">)</span>
+
+<span class="s0">sns.heatmap(data, cmap=</span><span class="s2">'YlOrRd'</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+七、网络关系类图表 
+ 
+1. 节点链接网络图（Node-Link Diagram） 
+ 
+① 基础信息 
+网络数据的标准可视化形式，用节点代表实体、边代表实体间的关系，可展示网络的拓扑结构、聚类、中心节点等特征。 
+ 
+② 构成与视觉通道 
+- 核心构成：节点、边、布局结构 
+- 视觉通道：核心为节点连接关系，辅助通道为节点大小/颜色（属性）、边粗细/颜色（关系强度/类型） 
+ 
+③ 适用场景 
+- 关系型数据展示，如社交网络、知识图谱、交通网络、供应链网络 
+- 网络结构分析，识别关键节点、社群聚类、孤立点 
+- 探索性网络数据分析 
+ 
+④ 注意事项 
+- 节点/边数量过多会形成「毛球」，可读性极差 
+- 需选择合适的布局算法（力导向、环形、分层等） 
+- 适合交互式探索，静态图承载量有限 
+ 
+⑤ 优缺点 
+- 优点：拓扑结构直观，能清晰展示连接关系、聚类与中心节点 
+- 缺点：大数据量下极易混乱，布局计算复杂，解读成本高 
+ 
+⑥ 常见变体 
+力导向图、环形网络图、分层网络图、交互式网络图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">networkx </span><span class="s1">as </span><span class="s0">nx</span>
+<span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+
+<span class="s0">G = nx.Graph()</span>
+<span class="s0">G.add_nodes_from([</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">, </span><span class="s2">'E'</span><span class="s0">])</span>
+<span class="s0">G.add_edges_from([(</span><span class="s2">'A'</span><span class="s0">,</span><span class="s2">'B'</span><span class="s0">), (</span><span class="s2">'A'</span><span class="s0">,</span><span class="s2">'C'</span><span class="s0">), (</span><span class="s2">'B'</span><span class="s0">,</span><span class="s2">'D'</span><span class="s0">), (</span><span class="s2">'C'</span><span class="s0">,</span><span class="s2">'E'</span><span class="s0">), (</span><span class="s2">'D'</span><span class="s0">,</span><span class="s2">'E'</span><span class="s0">)])</span>
+
+<span class="s0">nx.draw(G, with_labels=</span><span class="s1">True</span><span class="s0">, node_size=</span><span class="s3">500</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+2. 弧形图（Arc Diagram） 
+ 
+① 基础信息 
+网络图的变体，所有节点沿水平直线排列，节点间的连接用上方弧线表示，弧线高度可映射关系强度，适合有序节点的关系展示。 
+ 
+② 构成与视觉通道 
+- 核心构成：水平排列的节点、上方连接弧线 
+- 视觉通道：核心为弧线连接（关系）、弧线高度/粗细（关系强度） 
+ 
+③ 适用场景 
+- 有序节点的关系展示，如文本词共现、时间事件关联、线性站点连接 
+- 节点顺序有明确逻辑的关系数据 
+- 避免毛球问题的轻量化网络展示 
+ 
+④ 注意事项 
+- 节点顺序对可读性影响极大，必须按逻辑排序 
+- 连接过多仍会导致弧线重叠混乱 
+- 仅适合一维排列的节点，不适合复杂拓扑 
+ 
+⑤ 优缺点 
+- 优点：节点排列整齐有序，比力导向图更规整，适合有序关系展示 
+- 缺点：仅支持线性节点排列，关系数量多了依然杂乱 
+ 
+⑥ 常见变体 
+双向弧形图、带权重弧形图、多层弧形图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">matplotlib.pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+
+<span class="s0">nodes = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">, </span><span class="s2">'E'</span><span class="s0">]</span>
+<span class="s0">edges = [(</span><span class="s2">'A'</span><span class="s0">,</span><span class="s2">'C'</span><span class="s0">), (</span><span class="s2">'B'</span><span class="s0">,</span><span class="s2">'D'</span><span class="s0">), (</span><span class="s2">'C'</span><span class="s0">,</span><span class="s2">'E'</span><span class="s0">), (</span><span class="s2">'A'</span><span class="s0">,</span><span class="s2">'E'</span><span class="s0">)]</span>
+<span class="s0">x = np.arange(len(nodes))</span>
+
+<span class="s0">fig, ax = plt.subplots(figsize=(</span><span class="s3">8</span><span class="s0">, </span><span class="s3">3</span><span class="s0">))</span>
+<span class="s4"># 绘制节点</span>
+<span class="s0">ax.scatter(x, np.zeros(len(nodes)), s=</span><span class="s3">100</span><span class="s0">, zorder=</span><span class="s3">5</span><span class="s0">)</span>
+<span class="s1">for </span><span class="s0">i, name </span><span class="s1">in </span><span class="s0">enumerate(nodes):</span>
+    <span class="s0">ax.text(x[i], -</span><span class="s3">0.15</span><span class="s0">, name, ha=</span><span class="s2">'center'</span><span class="s0">)</span>
+
+<span class="s4"># 绘制弧形连线</span>
+<span class="s1">for </span><span class="s0">u, v </span><span class="s1">in </span><span class="s0">edges:</span>
+    <span class="s0">i, j = nodes.index(u), nodes.index(v)</span>
+    <span class="s0">mid_x = (x[i] + x[j]) / </span><span class="s3">2</span>
+    <span class="s0">radius = abs(x[j] - x[i]) / </span><span class="s3">2</span>
+    <span class="s0">theta = np.linspace(</span><span class="s3">0</span><span class="s0">, np.pi, </span><span class="s3">100</span><span class="s0">)</span>
+    <span class="s0">ax.plot(mid_x + radius * np.cos(theta), radius * np.sin(theta), color=</span><span class="s2">'gray'</span><span class="s0">)</span>
+
+<span class="s0">ax.set_ylim(-</span><span class="s3">0.5</span><span class="s0">, max(x) + </span><span class="s3">0.5</span><span class="s0">)</span>
+<span class="s0">ax.axis(</span><span class="s2">'off'</span><span class="s0">)</span>
+<span class="s0">plt.show()</span><hr class="ls0"><span class="s0">#%% md 
+3. 和弦图（Chord Diagram） 
+ 
+① 基础信息 
+将节点排列在圆周上，节点间的双向流量用带状弦连接，弦的宽度对应流量大小，用于展示实体间的双向交互流量。 
+ 
+② 构成与视觉通道 
+- 核心构成：圆周节点、带状弦、流量宽度 
+- 视觉通道：核心为弦的宽度（流量大小），辅助通道为颜色（节点/流向区分）、角度（节点分类） 
+ 
+③ 适用场景 
+- 双向流量/交互关系展示，如地区间人口迁移、行业间贸易、生物群落能量流动 
+- 少量类别间的双向流量对比 
+- 强调视觉效果的关系数据展示 
+ 
+④ 注意事项 
+- 节点数量不宜过多（≤10类），否则弦带难以区分 
+- 流量方向与大小需清晰标注，避免误读 
+- 解读成本较高，不适合大众受众 
+ 
+⑤ 优缺点 
+- 优点：双向流量的大小与方向直观，视觉效果突出，信息密度高 
+- 缺点：节点数量受限，解读门槛高，数值精度有限 
+ 
+⑥ 常见变体 
+交互式和弦图、分级和弦图、半和弦图 <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.figure_factory </span><span class="s1">as </span><span class="s0">ff</span>
+
+<span class="s4"># 双向流量矩阵</span>
+<span class="s0">matrix = [</span>
+    <span class="s0">[</span><span class="s3">0</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s3">20</span><span class="s0">, </span><span class="s3">30</span><span class="s0">],</span>
+    <span class="s0">[</span><span class="s3">10</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">25</span><span class="s0">],</span>
+    <span class="s0">[</span><span class="s3">20</span><span class="s0">, </span><span class="s3">15</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">20</span><span class="s0">],</span>
+    <span class="s0">[</span><span class="s3">30</span><span class="s0">, </span><span class="s3">25</span><span class="s0">, </span><span class="s3">20</span><span class="s0">, </span><span class="s3">0</span><span class="s0">]</span>
+<span class="s0">]</span>
+<span class="s0">names = [</span><span class="s2">'A'</span><span class="s0">, </span><span class="s2">'B'</span><span class="s0">, </span><span class="s2">'C'</span><span class="s0">, </span><span class="s2">'D'</span><span class="s0">]</span>
+
+<span class="s0">fig = ff.create_chord(matrix, names)</span>
+<span class="s0">fig.show()</span><hr class="ls0"><span class="s0">#%% md 
+4. 桑基图（Sankey Diagram） 
+ 
+① 基础信息 
+通过节点与流动带展示数据的流向、分流与汇聚，流带宽度对应流量大小，核心是展示从左到右的流程分配、转化与路径。 
+ 
+② 构成与视觉通道 
+- 核心构成：层级节点、流动带、流向路径 
+- 视觉通道：核心为流带宽度（流量大小）、流向路径，辅助通道为颜色（分类/来源） 
+ 
+③ 适用场景 
+- 流量分配与路径分析，如能源流向、用户行为路径、资金流向 
+- 多环节的转化与分流分析，如渠道-页面-转化的用户路径 
+- 流量守恒的流程拆解 
+ 
+④ 注意事项 
+- 流量必须守恒（流入=流出），逻辑需自洽 
+- 层级与分支不宜过多，否则会混乱 
+- 适合展示流向，不适合精确数值对比 
+ 
+⑤ 优缺点 
+- 优点：流向与流量分配逻辑直观，能清晰展示多节点的分流与汇聚 
+- 缺点：分支过多可读性下降，制作复杂度高，仅适合流量类数据 
+ 
+⑥ 常见变体 
+多层桑基图、对比桑基图、冲积图（Alluvial，分类随时间变化） <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">plotly.graph_objects </span><span class="s1">as </span><span class="s0">go</span>
+
+<span class="s0">fig = go.Figure(go.Sankey(</span>
+    <span class="s0">node=dict(label=[</span><span class="s2">&quot;访问&quot;</span><span class="s0">, </span><span class="s2">&quot;注册&quot;</span><span class="s0">, </span><span class="s2">&quot;流失&quot;</span><span class="s0">, </span><span class="s2">&quot;付费&quot;</span><span class="s0">]),</span>
+    <span class="s0">link=dict(</span>
+        <span class="s0">source=[</span><span class="s3">0</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">1</span><span class="s0">, </span><span class="s3">1</span><span class="s0">],  </span><span class="s4"># 源节点索引</span>
+        <span class="s0">target=[</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s0">],  </span><span class="s4"># 目标节点索引</span>
+        <span class="s0">value=[</span><span class="s3">500</span><span class="s0">, </span><span class="s3">500</span><span class="s0">, </span><span class="s3">300</span><span class="s0">, </span><span class="s3">200</span><span class="s0">]  </span><span class="s4"># 流量大小</span>
+    <span class="s0">)</span>
+<span class="s0">))</span>
+<span class="s0">fig.show()</span></pre>
+</body>
+</html>
